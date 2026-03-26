@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>هموستي 🎀</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      transition: 0.5s;
+      overflow-x: hidden;
+      background: linear-gradient(0deg, #ffc0cb, #ffe4ec);
+    }
+
+    h1 {
+      color: deeppink;
+      margin-top: 30px;
+    }
+
+    #taskInput {
+      padding: 10px;
+      border-radius: 15px;
+      border: none;
+      width: 200px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background: hotpink;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      margin: 5px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255,105,180,0.4);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(255,105,180,0.6);
+    }
+
+    li {
+      background: white;
+      margin: 10px auto;
+      padding: 10px;
+      width: 220px;
+      border-radius: 15px;
+      list-style: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    li:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.5);
+    }
+
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .dark {
+      background: linear-gradient(0deg, #d16ba5, #ff9a9e);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<h1>هموستي دلوعتي 🎀💖</h1>
+<p id="text">هلا دلوعتي 💕</p>
+
+<input id="taskInput" placeholder="اكتبي مهمة 🎀"><br>
+
+<button onclick="addTask()">إضافة 💖</button>
+<button onclick="toggleTheme()">تغيير الثيم 🌈</button>
+<button onclick="motivate()">دلعيني 💕</button>
+
+<ul id="taskList"></ul>
+
+<!-- أصوات -->
+<audio id="clickSound" src="button-16.mp3"></audio>
+
+<script>
+// ------------------------- الخلفية المتحركة -------------------------
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let hearts = [];
+for (let i=0; i<40; i++){
+  hearts.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    size: Math.random()*25+10,
+    speed: Math.random()*2+1
+  });
+}
+
+function animateBg(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "rgba(255,105,180,0.8)";
+  ctx.font = "30px Arial";
+  hearts.forEach(h=>{
+    ctx.fillText("💖", h.x, h.y);
+    h.y -= h.speed;
+    if(h.y < -30) h.y = canvas.height + 30;
+  });
+  requestAnimationFrame(animateBg);
+}
+animateBg();
+
+window.onresize = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+
+// ------------------------- إدارة المهام -------------------------
+window.onload = function() {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.forEach(task => createTask(task.text, task.done));
+};
+
+function saveTasks() {
+  let tasks = [];
+  document.querySelectorAll("li").forEach(li => {
+    tasks.push({text: li.innerText, done: li.classList.contains("done")});
+  });
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function addTask() {
+  let input = document.getElementById("taskInput");
+  if(input.value === "") return;
+  createTask(input.value,false);
+  input.value = "";
+  saveTasks();
+}
+
+function createTask(text, done){
+  let li = document.createElement("li");
+  li.innerText = text;
+  if(done) li.classList.add("done");
+
+  li.onclick = function(){
+    li.classList.toggle("done");
+    playSound();
+    saveTasks();
+  };
+
+  document.getElementById("taskList").appendChild(li);
+}
+
+// ------------------------- النص التحفيزي -------------------------
+function motivate(){
+  let messages = [
+    "دلوعتي أميرة 👑💖",
+    "هموستي أحلى وحدة 💕",
+    "فخورة فيك 💖✨"
+  ];
+  let random = messages[Math.floor(Math.random()*messages.length)];
+  document.getElementById("text").innerText = random;
+  playSound();
+}
+
+// ------------------------- تشغيل الصوت -------------------------
+function playSound(){
+  document.getElementById("clickSound").play();
+}
+
+// ------------------------- الثيم -------------------------
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+}
+
+// ------------------------- قلوب عند النقر -------------------------
+document.addEventListener("click", function(e){
+  let heart = document.createElement("div");
+  heart.innerHTML = "💖";
+  heart.style.position = "absolute";
+  heart.style.left = e.pageX + "px";
+  heart.style.top = e.pageY + "px";
+  heart.style.fontSize = "20px";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),1000);
+});
+</script>
+
+</body>
+</html>
